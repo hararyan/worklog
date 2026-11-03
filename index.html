@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkLog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Sign in -->
+  <section class="auth" id="auth" hidden>
+    <h1>WorkLog</h1>
+    <p class="hint" style="margin:0">Sign in to keep your work log.</p>
+    <form id="authForm" style="display:grid;gap:12px">
+      <input id="email" type="email" placeholder="Email" required autocomplete="email">
+      <input id="password" type="password" placeholder="Password (min 6 characters)" required minlength="6" autocomplete="current-password">
+      <div class="row">
+        <button class="btn primary" type="submit">Sign in</button>
+        <button class="btn" type="button" id="signupBtn">Create account</button>
+      </div>
+    </form>
+    <div class="msg" id="authMsg"></div>
+  </section>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <header>
+      <div class="wrap">
+        <div class="brand">WorkLog</div>
+        <button class="btn" id="exportBtn">Export</button>
+        <a class="btn" id="reportBtn" href="report.html">Report</a>
+        <button class="btn primary" id="newBtn">+ New entry</button>
+        <button class="btn" id="signoutBtn" title="Sign out">⎋</button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <p class="summary" id="summary"></p>
+
+      <div class="filters">
+        <input id="fQ" type="search" placeholder="Search…" aria-label="Search">
+        <select id="fCat" aria-label="Category"><option value="">All categories</option></select>
+        <input id="fFrom" type="date" aria-label="From date">
+        <input id="fTo" type="date" aria-label="To date">
+      </div>
+
+      <section id="timeline"></section>
+    </main>
+  </div>
+
+  <!-- New / edit entry -->
+  <dialog id="dlg">
+    <form id="form" autocomplete="off">
+      <div class="dlg-head">
+        <h2 id="dlgTitle">New entry</h2>
+        <button type="button" class="btn small" id="closeBtn">✕</button>
+      </div>
+      <div class="dlg-body">
+        <div>
+          <label for="title">What did you do?</label>
+          <input id="title" required maxlength="200" placeholder="e.g. Learned Docker basics">
+        </div>
+        <div class="grid2">
+          <div><label for="entry_date">Date</label><input id="entry_date" type="date" required></div>
+          <div><label for="category">Category</label><select id="category"></select></div>
+        </div>
+        <div class="grid3">
+          <div><label for="start_time">Start time</label><input id="start_time" type="time"></div>
+          <div><label for="end_time">End time</label><input id="end_time" type="time"></div>
+          <div><label for="duration">Minutes</label><input id="duration" type="number" min="0" max="1440" placeholder="auto"></div>
+        </div>
+        <div class="hint" id="durHint" style="margin-top:-6px">Minutes are calculated from start and end time.</div>
+        <div>
+          <label for="description">Details / what you learned</label>
+          <textarea id="description"></textarea>
+        </div>
+        <div>
+          <label for="links">Links (one per line)</label>
+          <textarea id="links" style="min-height:60px" placeholder="https://…"></textarea>
+        </div>
+        <div>
+          <label>Screenshots</label>
+          <div class="drop" id="drop">Click, drag &amp; drop, or paste (Ctrl+V) images</div>
+          <input type="file" id="files" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+          <div class="previews" id="previews"></div>
+        </div>
+      </div>
+      <div class="dlg-foot">
+        <span class="err" id="err"></span>
+        <button type="button" class="btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn primary" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="lightbox" id="lightbox"><img alt=""></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

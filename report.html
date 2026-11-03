@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Work Report</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="no-print">
+    <div class="wrap">
+      <div class="brand">Work report</div>
+      <a class="btn" href="index.html">← Back</a>
+      <button class="btn primary" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="controls no-print">
+      <input id="rName" placeholder="Your name" aria-label="Your name">
+      <input id="rFrom" type="date" aria-label="From">
+      <input id="rTo" type="date" aria-label="To">
+      <select id="rCat" aria-label="Category"><option value="">All categories</option></select>
+    </div>
+    <article class="sheet" id="sheet"></article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const now = new Date();
+    $('#rFrom').value = qs.get('from') || toStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    $('#rTo').value = qs.get('to') || todayStr();
+    $('#rName').value = localStorage.getItem('worklog.name') || '';
+    $('#rCat').append(...CATEGORIES.map((c) => el('option', { value: c, text: c })));
+
+    function entryBlock(e) {
+      const time = e.start_time ? ' · ' + e.start_time + (e.end_time ? '–' + e.end_time : '') : '';
+      return el('div', { class: 'r-entry' },
+        el('h3', { text: e.title }),
+        el('div', { class: 'meta' },
+          el('span', { text: fmtDate(e.entry_date) + time }),
+          el('span', { class: 'badge', text: e.category }),
+          e.duration_min ? el('span', { text: fmtDur(e.duration_min) }) : null
+        ),
+        e.description ? el('p', { class: 'desc', text: e.description }) : null,
+        e.links.length ? el('div', { class: 'links' }, e.links.map((u) => el('a', { href: u, text: u }))) : null,
+        e.images.length ? el('div', { class: 'gallery' }, e.images.map((im) => el('img', { src: im.url, alt: e.title }))) : null
+      );
+    }
+
+    async function build() {
+      localStorage.setItem('worklog.name', $('#rName').value);
+      const from = $('#rFrom').value, to = $('#rTo').value;
+      let entries;
+      try {
+        entries = await fetchEntries({ from, to, category: $('#rCat').value });
+      } catch (err) {
+        $('#sheet').replaceChildren(el('p', { text: 'Could not load: ' + err.message }));
+        return;
+      }
+      entries.reverse(); // oldest first
+
+      const total = entries.reduce((s, e) => s + e.duration_min, 0);
+      const days = new Set(entries.map((e) => e.entry_date)).size;
+      const byCat = {};
+      for (const e of entries) {
+        byCat[e.category] ||= { count: 0, minutes: 0 };
+        byCat[e.category].count++;
+        byCat[e.category].minutes += e.duration_min;
+      }
+      const name = $('#rName').value.trim();
+      const period = `${from ? fmtDate(from) : 'Beginning'} – ${to ? fmtDate(to) : 'Today'}`;
+      const stat = (v, l) => el('div', {}, el('b', { text: v }), el('span', { text: l }));
+
+      $('#sheet').replaceChildren(...[
+        el('h1', { text: 'Work Activity Report' }),
+        el('div', { class: 'sub', text: [name && 'Prepared by ' + name, period].filter(Boolean).join('  ·  ') }),
+        el('div', { class: 'totals' },
+          stat(String(entries.length), 'entries'),
+          stat((total / 60).toFixed(1) + ' h', 'time logged'),
+          stat(String(days), 'days')
+        ),
+        entries.length
+          ? [
+              el('h2', { text: 'By category' }),
+              el('table', {},
+                el('thead', {}, el('tr', {}, el('th', { text: 'Category' }), el('th', { text: 'Entries' }), el('th', { text: 'Time' }))),
+                el('tbody', {}, Object.entries(byCat).map(([c, v]) => el('tr', {}, el('td', { text: c }), el('td', { text: String(v.count) }), el('td', { text: fmtDur(v.minutes) || '—' }))))
+              ),
+              el('h2', { text: 'Details' }),
+              entries.map(entryBlock),
+            ]
+          : el('p', { class: 'hint', text: 'No entries in this period.' }),
+        el('div', { class: 'sign' }, el('div', { text: 'Employee' }), el('div', { text: 'Manager' }), el('div', { text: 'Date' }))
+      ].flat(Infinity));
+    }
+
+    ['#rName', '#rFrom', '#rTo', '#rCat'].forEach((s) => $(s).addEventListener('change', build));
+
+    (async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.href = 'index.html'; return; }
+      build();
+    })();
+  </script>
+</body>
+</html>
