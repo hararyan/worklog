@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WorkLog</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- Sign in -->
   <section class="auth" id="auth" hidden>
-    <h1>WorkLog</h1>
+    <h1>Note Madi</h1>
     <p class="hint" style="margin:0">Sign in to keep your work log.</p>
     <form id="authForm" style="display:grid;gap:12px">
       <input id="email" type="email" placeholder="Email" required autocomplete="email">
-      <input id="password" type="password" placeholder="Password (min 6 characters)" required minlength="6" autocomplete="current-password">
+      <input id="password" type="password" placeholder="Password (min 6 characters)" required minlength="6"
+        autocomplete="current-password">
       <div class="row">
         <button class="btn primary" type="submit">Sign in</button>
         <button class="btn" type="button" id="signupBtn">Create account</button>
@@ -27,7 +30,7 @@
   <div id="app" hidden>
     <header>
       <div class="wrap">
-        <div class="brand">WorkLog</div>
+        <div class="brand">NoteMadi</div>
         <button class="btn" id="exportBtn">Export</button>
         <a class="btn" id="reportBtn" href="report.html">Report</a>
         <button class="btn primary" id="newBtn">+ New entry</button>
@@ -40,7 +43,9 @@
 
       <div class="filters">
         <input id="fQ" type="search" placeholder="Search…" aria-label="Search">
-        <select id="fCat" aria-label="Category"><option value="">All categories</option></select>
+        <select id="fCat" aria-label="Category">
+          <option value="">All categories</option>
+        </select>
         <input id="fFrom" type="date" aria-label="From date">
         <input id="fTo" type="date" aria-label="To date">
       </div>
@@ -68,7 +73,8 @@
         <div class="grid3">
           <div><label for="start_time">Start time</label><input id="start_time" type="time"></div>
           <div><label for="end_time">End time</label><input id="end_time" type="time"></div>
-          <div><label for="duration">Minutes</label><input id="duration" type="number" min="0" max="1440" placeholder="auto"></div>
+          <div><label for="duration">Minutes</label><input id="duration" type="number" min="0" max="1440"
+              placeholder="auto"></div>
         </div>
         <div class="hint" id="durHint" style="margin-top:-6px">Minutes are calculated from start and end time.</div>
         <div>
@@ -103,4 +109,5 @@
   <script src="common.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
