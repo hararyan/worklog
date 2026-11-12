@@ -5,6 +5,19 @@ const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY)
 const BUCKET = 'screenshots';
 const CATEGORIES = ['Learning', 'Development', 'Bug Fix', 'Meeting', 'Documentation', 'Code Review', 'Deployment', 'Support', 'Other'];
 
+// ---------- theme (dark / light) ----------
+function applyTheme(theme, save) {
+  document.documentElement.setAttribute('data-theme', theme);
+  if (save) { try { localStorage.setItem('worklog.theme', theme); } catch (e) { } }
+  const b = document.getElementById('themeBtn');
+  if (b) { b.textContent = theme === 'light' ? '🌙' : '☀️'; b.title = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'; }
+}
+(function initTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'dark', false);
+  const b = document.getElementById('themeBtn');
+  if (b) b.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light', true));
+})();
+
 // ---------- tiny DOM helpers ----------
 const $ = (s, r = document) => r.querySelector(s);
 
